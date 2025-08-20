@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: tripplanner-db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - tripplanner-data:/var/lib/postgresql/data
+    networks:
+      - tripwise-backend
+
+  tripplanner:
+    build: .
+    container_name: tripplanner-service
+    env_file:
+      - .env
+    ports:
+      - "${TRIPPLANNER_PORT}:9093"
+    depends_on:
+      - postgres
+    networks:
+      - tripwise-backend
+
+networks:
+  tripwise-backend:
+    driver: bridge
+
+volumes:
+  tripplanner-data:
+
+
