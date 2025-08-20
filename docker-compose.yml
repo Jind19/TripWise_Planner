@@ -1,35 +1,36 @@
+version: '3.8'
+
 services:
-  postgres:
+  tripplanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tripplanner
+    ports:
+      - "9093:9093"
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
+    depends_on:
+      - planner_db
+    networks:
+      - tripwise-backend
+
+  planner_db:
     image: postgres:15
-    container_name: tripplanner-db
+    container_name: planner_db
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
-    volumes:
-      - tripplanner-data:/var/lib/postgresql/data
-    networks:
-      - tripwise-backend
-
-  tripplanner:
-    build: .
-    container_name: tripplanner-service
-    env_file:
-      - .env
-    ports:
-      - "${TRIPPLANNER_PORT}:9093"
-    depends_on:
-      - postgres
     networks:
       - tripwise-backend
 
 networks:
   tripwise-backend:
-    driver: bridge
-
-volumes:
-  tripplanner-data:
-
-
+    external: true
