@@ -1,40 +1,39 @@
 package com.tripwise.tripplanner.model;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.util.UUID;
 
-@Table(name = "trips")
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class Trip {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "trips", indexes = @Index(name = "idx_trip_user", columnList = "userId"))
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class Trip extends BaseEntity {
+    @Id @GeneratedValue
+    private UUID id;
 
     @Column(nullable = false)
+    private String userId;
+
+    @NotBlank @Column(nullable = false)
     private String destinationCountry;
 
+    @NotBlank @Column(nullable = false)
     private String destinationCity;
+
+    @NotNull @Column(nullable = false)
     private LocalDate startDate;
+
+    @NotNull @Column(nullable = false)
     private LocalDate endDate;
-    private Integer peopleCount;
+
+    @Min(1) @Column(nullable = false)
+    private int peopleCount;
+
+    @Digits(integer = 12, fraction = 2)
+    @Column(precision = 14, scale = 2)
     private BigDecimal budget;
-
-    @Column(nullable = false)
-    private OffsetDateTime createdAt;
-
-
-
-
 }

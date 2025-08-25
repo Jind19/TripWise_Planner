@@ -1,13 +1,14 @@
 package com.tripwise.tripplanner.controller;
 
 import com.tripwise.tripplanner.model.Trip;
-import com.tripwise.tripplanner.security.AuthUtils;
+import com.tripwise.tripplanner.dto.TripDtos;
 import com.tripwise.tripplanner.service.TripService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/tripplanner/trips")
@@ -15,19 +16,30 @@ import org.springframework.web.bind.annotation.*;
 public class TripController {
     private final TripService tripService;
 
-
     @PostMapping
-    public ResponseEntity<TripDtos.TripResponse> createTrip(@Valid @RequestBody TripDtos.CreateTripRequest req){
-        String ownerId = AuthUtils.userIdFromSecurityContext();
-        Trip t = tripService.createTrip(ownerId, req);
-        return ResponseEntity.ok(TripMapper.toTripResponse(t));
+    @ResponseStatus(HttpStatus.CREATED)
+    public TripDtos.Res create(@Valid @RequestBody TripDtos.CreateReq body) {
+        var t = Trip.builder()
+                .destinationCountry(body.destinationCountry())
+                .destinationCity(body.destinationCity())
+                .startDate(body.startDate())
+                .endDate(body.endDate())
+                .peopleCount(body.peopleCount())
+                .budget(body.budget())
+                .build();
+        var saved = tripService.create(t);
+        return new TripDtos.Res(
+                saved.getId(), saved.getDestinationCountry(), saved.getDestinationCity(),
+                saved.getStartDate(), saved.getEndDate(), saved.getPeopleCount(), saved.getBudget()
+        );
     }
 
-
     @GetMapping("/{tripId}")
-    public ResponseEntity<TripDtos.TripResponse> getTrip(@PathVariable Long tripId){
-        String ownerId = AuthUtils.userIdFromSecurityContext();
-        Trip t = tripService.getOwnedTrip(ownerId, tripId);
-        return ResponseEntity.ok(TripMapper.toTripResponse(t));
+    public TripDtos.Res get(@PathVariable UUID tripId) {
+        var t = tripService.getOwned(tripId);
+        return new TripDtos.Res(
+                t.getId(), t.getDestinationCountry(), t.getDestinationCity(),
+                t.getStartDate(), t.getEndDate(), t.getPeopleCount(), t.getBudget()
+        );
     }
 }

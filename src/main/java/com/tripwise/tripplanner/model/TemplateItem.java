@@ -3,21 +3,23 @@ package com.tripwise.tripplanner.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Data
-public class TemplateItem {
+@Table(name = "template_items")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class TemplateItem extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
+    @Id @GeneratedValue
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "template_id", nullable = false)
     private PackingTemplate template;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private int defaultQuantity;
 }

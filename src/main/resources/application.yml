@@ -2,6 +2,11 @@ server:
   port: 9093
 
 spring:
+  application:
+    name: tripplanner
+  mvc:
+    servlet:
+      path: /tripplanner
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -9,29 +14,44 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # create, create-drop, update, validate
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     properties:
-      hibernate.format_sql: true
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
   jackson:
     serialization:
       INDENT_OUTPUT: true
-
-  # OAuth2 Google Login
   security:
     oauth2:
-          client:
-            registration:
-              google:
-                client-id: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID}
-                client-secret: ${SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET}
-                scope:
-                  - openid
-                  - profile
-                  - email
-            provider:
-              google:
-                authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-                token-uri: https://oauth2.googleapis.com/token
-                user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-                user-name-attribute: sub
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,env"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Outbound via Gateway  ⬇︎ keep ONLY ONE of each
+triphub:
+  base-url: ${TRIPHUB_BASE_URL:https://triphub}
+tripprofile:
+  base-path: ${TRIPPROFILE_BASE_PATH:/tripprofile}
+

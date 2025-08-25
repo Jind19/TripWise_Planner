@@ -3,22 +3,29 @@ package com.tripwise.tripplanner.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PackingListItem {
+@Table(name = "packing_list_items")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class PackingListItem extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String name;
-    private boolean packed;  // ✅ tick mark (true = packed, false = not packed)
+    @Id @GeneratedValue
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_packing_list_id", nullable = false)  // explicit foreign key column
-    private UserPackingList userPackingList;
+    @JoinColumn(name = "packing_list_id", nullable = false)
+    private UserPackingList packingList;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
+    private boolean packed;
+
+    private String notes;
 }
 

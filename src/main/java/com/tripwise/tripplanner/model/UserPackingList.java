@@ -5,22 +5,29 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-@Data
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class UserPackingList {
+@Table(name = "user_packing_lists", indexes = {
+        @Index(name = "idx_upl_trip_user", columnList = "trip_id,userId", unique = true)
+})
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+public class UserPackingList extends BaseEntity {
+    @Id @GeneratedValue
+    private UUID id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false)
+    private String userId;
 
-    private Long tripId;    // link to Trip (from Trip entity)
-    private Long userId;    // authenticated user
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trip_id", nullable = false)
+    private Trip trip;
 
-    @OneToMany(mappedBy = "userPackingList", cascade = CascadeType.ALL, orphanRemoval = true)
+    /** Snapshot of template name/version at clone time (optional, helpful for history) */
+    @Column(nullable = true)
+    private String templateNameSnapshot;
+
+    @OneToMany(mappedBy = "packingList", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<PackingListItem> items = new ArrayList<>();
 }
