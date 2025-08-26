@@ -11,6 +11,7 @@ import java.util.UUID;
 @org.hibernate.annotations.Immutable
 @Entity
 @Table(name = "packing_templates" /* unique name constraint */)
+@Data
 public class PackingTemplate extends BaseEntity {
 
     @Id @GeneratedValue
