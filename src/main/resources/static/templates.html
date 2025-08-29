@@ -12,8 +12,8 @@
           border-radius: 5px;
         }
         button {
-          margin: 15px 0;
-          padding: 8px 14px;
+          margin: 5px 0;
+          padding: 6px 12px;
           font-size: 14px;
           cursor: pointer;
         }
@@ -36,6 +36,7 @@
               <ul>
                 ${t.items.map(i => `<li>${i.name} × ${i.defaultQuantity}</li>`).join("")}
               </ul>
+              <button onclick="window.location.href='edit-template.html?id=${t.id}'">Edit</button>
             `;
             container.appendChild(div);
           });

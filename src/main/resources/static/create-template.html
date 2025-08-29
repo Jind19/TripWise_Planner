@@ -7,23 +7,43 @@
         body { font-family: Arial, sans-serif; margin: 20px; }
         label { display: block; margin: 5px 0; }
         input { margin-left: 10px; }
-        button { margin-top: 10px; padding: 8px 14px; }
+        button { margin-top: 10px; padding: 8px 14px; cursor: pointer; }
         pre { background: #f4f4f4; padding: 10px; border-radius: 6px; }
+        .item-row { margin-bottom: 8px; }
     </style>
     <script>
+        function addItemRow() {
+          const container = document.getElementById("itemsContainer");
+
+          const div = document.createElement("div");
+          div.className = "item-row";
+          div.innerHTML = `
+            <label>
+              Item Name: <input class="itemName" required>
+              Quantity per Person: <input class="qty" type="number" value="1" required style="width:60px;">
+              <button type="button" onclick="this.parentElement.parentElement.remove()">Remove</button>
+            </label>
+          `;
+          container.appendChild(div);
+        }
+
         async function createTemplate() {
           const name = document.getElementById("name").value;
           const description = document.getElementById("description").value;
-          const itemName = document.getElementById("itemName").value;
-          const qty = parseInt(document.getElementById("qty").value, 10);
 
-          const payload = {
-            name: name,
-            description: description,
-            items: [
-              { name: itemName, qtyPerPerson: qty, notes: "" }
-            ]
-          };
+          const itemNames = document.querySelectorAll(".itemName");
+          const qtys = document.querySelectorAll(".qty");
+
+          const items = [];
+          for (let i = 0; i < itemNames.length; i++) {
+            items.push({
+              name: itemNames[i].value,
+              qtyPerPerson: parseInt(qtys[i].value, 10),
+              notes: ""
+            });
+          }
+
+          const payload = { name, description, items };
 
           const resp = await fetch("/tripplanner/packing-templates", {
             method: "POST",
@@ -42,9 +62,11 @@
 <form onsubmit="event.preventDefault(); createTemplate();">
     <label>Template Name: <input id="name" required></label>
     <label>Description: <input id="description"></label>
-    <h3>First Item</h3>
-    <label>Item Name: <input id="itemName" required></label>
-    <label>Quantity per Person: <input id="qty" type="number" value="1" required></label>
+
+    <h3>Items</h3>
+    <div id="itemsContainer"></div>
+    <button type="button" onclick="addItemRow()">+ Add Item</button><br><br>
+
     <button type="submit">Create Template</button>
 </form>
 
@@ -52,5 +74,10 @@
 <pre id="result"></pre>
 
 <button onclick="window.location.href='templates.html'">← Back to Templates List</button>
+
+<script>
+    // add one row by default
+    addItemRow();
+</script>
 </body>
 </html>

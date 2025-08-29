@@ -36,17 +36,27 @@ public class TemplateService {
     @Transactional
     public PackingTemplate update(Long id, TemplateDtos.UpdateReq req){
         PackingTemplate t = templates.findById(id).orElseThrow();
-        t.setName(req.name()); t.setDescription(req.description());
+        t.setName(req.name());
+        t.setDescription(req.description());
         if (req.active() != null) t.setActive(req.active());
+
+        // clear existing children safely
+        t.getItems().clear();
+
+        // add new children into the *same collection instance*
         if (req.items() != null) {
-            t.getItems().forEach(items::delete);
-            t.getItems().clear();
-            List<PackingTemplateItem> add = new ArrayList<>();
             for (TemplateDtos.ItemReq i : req.items()) {
-                add.add(items.save(PackingTemplateItem.builder().template(t).name(i.name()).qtyPerPerson(i.qtyPerPerson()).notes(i.notes()).build()));
+                t.getItems().add(
+                        PackingTemplateItem.builder()
+                                .template(t)
+                                .name(i.name())
+                                .qtyPerPerson(i.qtyPerPerson())
+                                .notes(i.notes())
+                                .build()
+                );
             }
-            t.setItems(add);
         }
+
         t.setVersion(t.getVersion() + 1);
         return templates.save(t);
     }
