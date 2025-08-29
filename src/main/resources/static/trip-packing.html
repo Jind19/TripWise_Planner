@@ -6,8 +6,8 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         button { margin: 5px 4px; padding: 6px 12px; cursor: pointer; }
-        pre { background: #f4f4f4; padding: 10px; border-radius: 6px; }
-        ul { margin: 10px 0; }
+        input[type=text], input[type=number] { margin: 4px; }
+        li { margin-bottom: 6px; }
     </style>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -16,10 +16,8 @@
         async function loadTemplates() {
           const resp = await fetch("/tripplanner/packing-templates");
           const templates = await resp.json();
-
           const container = document.getElementById("templatesList");
           container.innerHTML = "";
-
           templates.forEach(t => {
             const div = document.createElement("div");
             div.innerHTML = `
@@ -34,20 +32,14 @@
         async function assignTemplates() {
           const checked = Array.from(document.querySelectorAll("#templatesList input:checked"))
             .map(cb => parseInt(cb.value));
+          if (checked.length === 0) return alert("Select at least one template");
 
-          if (checked.length === 0) {
-            alert("Select at least one template");
-            return;
-          }
-
-          const resp = await fetch(`/tripplanner/trips/${tripId}/packing-list/from-templates`, {
+          await fetch(`/tripplanner/trips/${tripId}/packing-list/from-templates`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ templateIds: checked })
           });
-
-          const data = await resp.json();
-          renderPackingList(data.items);
+          loadPackingList();
         }
 
         async function loadPackingList() {
@@ -61,9 +53,47 @@
           container.innerHTML = "";
           items.forEach(i => {
             const li = document.createElement("li");
-            li.textContent = `${i.name} × ${i.quantity} [${i.checked ? "✔" : "✘"}]`;
+            li.innerHTML = `
+              <input type="text" value="${i.name}" id="name-${i.id}">
+              <input type="number" value="${i.quantity}" id="qty-${i.id}" style="width:60px;">
+              <label><input type="checkbox" id="chk-${i.id}" ${i.checked ? "checked" : ""}> Packed</label>
+              <button onclick="updateItem(${i.id})">Save</button>
+              <button onclick="deleteItem(${i.id})">Delete</button>
+            `;
             container.appendChild(li);
           });
+        }
+
+        async function addItem() {
+          const name = document.getElementById("newName").value;
+          const qty = parseInt(document.getElementById("newQty").value, 10);
+          if (!name) return alert("Enter name");
+
+          await fetch(`/tripplanner/trips/${tripId}/packing-list`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: null, name, quantity: qty, checked: false })
+          });
+          document.getElementById("newName").value = "";
+          document.getElementById("newQty").value = 1;
+          loadPackingList();
+        }
+
+        async function updateItem(id) {
+          const name = document.getElementById(`name-${id}`).value;
+          const qty = parseInt(document.getElementById(`qty-${id}`).value, 10);
+          const checked = document.getElementById(`chk-${id}`).checked;
+          await fetch(`/tripplanner/trips/${tripId}/packing-list/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, name, quantity: qty, checked })
+          });
+          loadPackingList();
+        }
+
+        async function deleteItem(id) {
+          await fetch(`/tripplanner/trips/${tripId}/packing-list/${id}`, { method: "DELETE" });
+          loadPackingList();
         }
 
         window.onload = () => {
@@ -79,6 +109,11 @@
 <h2>Assign Templates</h2>
 <div id="templatesList"></div>
 <button onclick="assignTemplates()">Assign Selected Templates</button>
+
+<h2>Add Item</h2>
+<input id="newName" type="text" placeholder="Item name">
+<input id="newQty" type="number" value="1" style="width:60px;">
+<button onclick="addItem()">Add</button>
 
 <h2>Current Packing List</h2>
 <ul id="packingList"></ul>
