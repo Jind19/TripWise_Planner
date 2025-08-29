@@ -1,6 +1,7 @@
 server:
   port: 9093
 
+
 spring:
   application:
     name: tripplanner
@@ -8,40 +9,19 @@ spring:
     servlet:
       path: /tripplanner
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/tripplanner}
+    username: ${SPRING_DATASOURCE_USERNAME:trip}
+    password: ${SPRING_DATASOURCE_PASSWORD:planner}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        jdbc:
-          time_zone: UTC
-  jackson:
-    serialization:
-      INDENT_OUTPUT: true
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://accounts.google.com
-
-google:
-  client-id: ${GOOGLE_CLIENT_ID}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "health,info,metrics,env"
-  endpoint:
-    health:
-      probes:
-        enabled: true
+        jdbc.time_zone: UTC
 
 springdoc:
   api-docs:
@@ -49,9 +29,7 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-# Outbound via Gateway  ⬇︎ keep ONLY ONE of each
-triphub:
-  base-url: ${TRIPHUB_BASE_URL:https://triphub}
-tripprofile:
-  base-path: ${TRIPPROFILE_BASE_PATH:/tripprofile}
 
+logging:
+  level:
+    org.hibernate.tool.schema: info
