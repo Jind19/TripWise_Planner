@@ -32,4 +32,18 @@ public class TripService {
     public Trip get(Long id){
         return trips.findById(id).orElseThrow();
     }
+
+    public Trip update(Long id, TripDtos.CreateReq req) {
+        Trip t = trips.findById(id).orElseThrow();
+        t.setDestination(req.destination());
+        t.setStartDate(req.startDate());
+        t.setEndDate(req.endDate());
+        t.setNumPeople(req.numPeople());
+        t.setBudget(req.budget());
+        return trips.save(t);
+    }
+
+    public void delete(Long id) {
+        trips.deleteById(id);
+    }
 }

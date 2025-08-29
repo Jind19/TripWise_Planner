@@ -34,4 +34,16 @@ public class TripController {
         Trip t = tripService.get(id);
         return new TripDtos.TripRes(t.getId(), t.getDestination(), t.getStartDate(), t.getEndDate(), t.getNumPeople(), t.getBudget(), t.getStatus());
     }
+
+    @PutMapping("/{id}")
+    public TripDtos.TripRes update(@PathVariable Long id, @Valid @RequestBody TripDtos.CreateReq req) {
+        Trip t = tripService.update(id, req);
+        return new TripDtos.TripRes(t.getId(), t.getDestination(), t.getStartDate(), t.getEndDate(), t.getNumPeople(), t.getBudget(), t.getStatus());
+    }
+
+    // NEW: delete trip
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        tripService.delete(id);
+    }
 }
