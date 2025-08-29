@@ -13,16 +13,25 @@ import java.util.List;
 public class TripController {
     private final TripService tripService;
 
+
     @GetMapping
     public List<TripDtos.TripRes> list(){
-        return tripService.listMine().stream()
+        return tripService.list().stream()
                 .map(t -> new TripDtos.TripRes(t.getId(), t.getDestination(), t.getStartDate(), t.getEndDate(), t.getNumPeople(), t.getBudget(), t.getStatus()))
                 .toList();
     }
 
+
     @PostMapping
     public TripDtos.TripRes create(@Valid @RequestBody TripDtos.CreateReq req){
         Trip t = tripService.create(req);
+        return new TripDtos.TripRes(t.getId(), t.getDestination(), t.getStartDate(), t.getEndDate(), t.getNumPeople(), t.getBudget(), t.getStatus());
+    }
+
+
+    @GetMapping("/{id}")
+    public TripDtos.TripRes get(@PathVariable Long id){
+        Trip t = tripService.get(id);
         return new TripDtos.TripRes(t.getId(), t.getDestination(), t.getStartDate(), t.getEndDate(), t.getNumPeople(), t.getBudget(), t.getStatus());
     }
 }

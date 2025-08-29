@@ -8,8 +8,6 @@ import java.math.BigDecimal; import java.time.LocalDate;
 @Entity @Table(name = "trips")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Trip extends BaseEntity {
-    @Column(nullable=false) private String ownerSub; // JWT subject
-    @Column(nullable=false) private String ownerEmail; // from JWT
     @Column(nullable=false) private String destination;
     @Column(nullable=false) private LocalDate startDate;
     @Column(nullable=false) private LocalDate endDate;

@@ -14,7 +14,9 @@ public class TemplateService {
     private final PackingTemplateRepository templates;
     private final PackingTemplateItemRepository items;
 
+
     public List<PackingTemplate> listActive(){ return templates.findByActiveTrueOrderByNameAsc(); }
+
 
     @Transactional
     public PackingTemplate create(TemplateDtos.CreateReq req){
@@ -30,12 +32,12 @@ public class TemplateService {
         return t;
     }
 
+
     @Transactional
     public PackingTemplate update(Long id, TemplateDtos.UpdateReq req){
         PackingTemplate t = templates.findById(id).orElseThrow();
         t.setName(req.name()); t.setDescription(req.description());
         if (req.active() != null) t.setActive(req.active());
-
         if (req.items() != null) {
             t.getItems().forEach(items::delete);
             t.getItems().clear();

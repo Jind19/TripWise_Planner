@@ -35,6 +35,7 @@ public class PackingListService {
         return created;
     }
 
+
     public List<TripPackingItem> list(Long tripId){
         return tripItems.findByTripIdOrderByNameAsc(tripId);
     }

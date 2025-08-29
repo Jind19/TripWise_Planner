@@ -16,13 +16,9 @@ public class TripDtos {
             @NotNull LocalDate endDate,
             @Min(1) Integer numPeople,
             @DecimalMin("0.0") BigDecimal budget
-    ) {
-    }
+    ) {}
 
-    public record TripRes(Long id, String destination, LocalDate startDate, LocalDate endDate, Integer numPeople,
-                          BigDecimal budget, String status) {
-    }
 
-    public record ListRes(List<TripRes> trips) {
-    }
+    public record TripRes(Long id, String destination, LocalDate startDate, LocalDate endDate, Integer numPeople, BigDecimal budget, String status) {}
+    public record ListRes(List<TripRes> trips) {}
 }
