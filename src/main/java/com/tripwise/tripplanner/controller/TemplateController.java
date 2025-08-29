@@ -42,4 +42,9 @@ public class TemplateController {
                         .toList()
         );
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        templateService.delete(id);
+    }
 }

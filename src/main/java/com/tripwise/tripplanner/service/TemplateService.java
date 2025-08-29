@@ -60,4 +60,9 @@ public class TemplateService {
         t.setVersion(t.getVersion() + 1);
         return templates.save(t);
     }
+
+    @Transactional
+    public void delete(Long id) {
+        templates.deleteById(id);
+    }
 }
