@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trip Packing List</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { margin: 5px 4px; padding: 6px 12px; cursor: pointer; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 6px; }
+        ul { margin: 10px 0; }
+    </style>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const tripId = urlParams.get("tripId");
+
+        async function loadTemplates() {
+          const resp = await fetch("/tripplanner/packing-templates");
+          const templates = await resp.json();
+
+          const container = document.getElementById("templatesList");
+          container.innerHTML = "";
+
+          templates.forEach(t => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+              <label>
+                <input type="checkbox" value="${t.id}"> ${t.name} (v${t.version})
+              </label>
+            `;
+            container.appendChild(div);
+          });
+        }
+
+        async function assignTemplates() {
+          const checked = Array.from(document.querySelectorAll("#templatesList input:checked"))
+            .map(cb => parseInt(cb.value));
+
+          if (checked.length === 0) {
+            alert("Select at least one template");
+            return;
+          }
+
+          const resp = await fetch(`/tripplanner/trips/${tripId}/packing-list/from-templates`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ templateIds: checked })
+          });
+
+          const data = await resp.json();
+          renderPackingList(data.items);
+        }
+
+        async function loadPackingList() {
+          const resp = await fetch(`/tripplanner/trips/${tripId}/packing-list`);
+          const data = await resp.json();
+          renderPackingList(data.items);
+        }
+
+        function renderPackingList(items) {
+          const container = document.getElementById("packingList");
+          container.innerHTML = "";
+          items.forEach(i => {
+            const li = document.createElement("li");
+            li.textContent = `${i.name} × ${i.quantity} [${i.checked ? "✔" : "✘"}]`;
+            container.appendChild(li);
+          });
+        }
+
+        window.onload = () => {
+          loadTemplates();
+          loadPackingList();
+        };
+    </script>
+</head>
+<body>
+<h1>Trip Packing List</h1>
+<button onclick="window.location.href='trips.html'">← Back to Trips</button>
+
+<h2>Assign Templates</h2>
+<div id="templatesList"></div>
+<button onclick="assignTemplates()">Assign Selected Templates</button>
+
+<h2>Current Packing List</h2>
+<ul id="packingList"></ul>
+</body>
+</html>
