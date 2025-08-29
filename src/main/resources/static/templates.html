@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Packing Templates</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .template-card {
+          border: 1px solid #ddd;
+          padding: 10px;
+          margin: 10px 0;
+          border-radius: 5px;
+        }
+        button {
+          margin: 15px 0;
+          padding: 8px 14px;
+          font-size: 14px;
+          cursor: pointer;
+        }
+    </style>
+    <script>
+        async function loadTemplates() {
+          const resp = await fetch("/tripplanner/packing-templates");
+          const templates = await resp.json();
+
+          const container = document.getElementById("templatesList");
+          container.innerHTML = "";
+
+          templates.forEach(t => {
+            const div = document.createElement("div");
+            div.className = "template-card";
+            div.innerHTML = `
+              <strong>${t.name}</strong> (v${t.version})<br>
+              ${t.description || ""}<br>
+              <em>Items:</em>
+              <ul>
+                ${t.items.map(i => `<li>${i.name} × ${i.defaultQuantity}</li>`).join("")}
+              </ul>
+            `;
+            container.appendChild(div);
+          });
+        }
+
+        window.onload = loadTemplates;
+    </script>
+</head>
+<body>
+<h1>All Packing Templates</h1>
+<button onclick="window.location.href='create-template.html'">
+    + Create New Template
+</button>
+
+<div id="templatesList"></div>
+</body>
+</html>
